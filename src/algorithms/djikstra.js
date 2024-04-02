@@ -13,12 +13,30 @@ export const djikstra = (nodes, startPos, endPos) => {
 
     if (closestNode.distance === Infinity) return visitedNodesInOrder;
     closestNode.isVVisited = true;
-    visitedNodesInOrderInOrder.push(closestNode);
+    visitedNodesInOrderpush(closestNode);
 
-    if (closestNode === finisihNode) return visitedNodesInOrder;
+    if (closestNode === endNode) return visitedNodesInOrder;
 
     updateUnvisitedNeighbors(closestNode, grid);
   }
+};
+
+const updateUnvisitedNeighbors = (node, grid) => {
+  const unvisitedNeighbors = getUnvisitedNeighbors(node, grid);
+  for (const neighbor of unvisitedNeighbors) {
+    neighbor.distance = node.distance + 1;
+    neighbor.previousNode = node;
+  }
+};
+
+const getUnvisitedNeighbors = (node, grid) => {
+  const neighbors = [];
+  const { col, row } = node;
+  if (row > 0) neighbors.push(grid[row - 1][col]);
+  if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
+  if (col > 0) neighbors.push(grid[row][col - 1]);
+  if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
+  return neighbors.filter((neighbor) => !neighbor.isVisited);
 };
 
 const sortNodesByDistance = (nodes) => {
