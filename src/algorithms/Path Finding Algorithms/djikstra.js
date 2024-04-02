@@ -1,5 +1,4 @@
 const djikstra = (walls, startPos, endPos, numRows, numCols) => {
-  console.log(walls);
   const { grid, startNode, endNode } = createGrid(
     walls,
     startPos,
@@ -18,7 +17,14 @@ const djikstra = (walls, startPos, endPos, numRows, numCols) => {
 
     if (closestNode.isWall) continue;
 
-    if (closestNode.distance === Infinity) return visitedNodesInOrder;
+    if (closestNode.distance === Infinity)
+      return {
+        visitedNodesInOrder: visitedNodesInOrder.map(
+          (node) => `${node.rowIdx}, ${node.colIdx}, ${node.distance}`
+        ),
+        shortestPath: [],
+        success: false,
+      };
 
     closestNode.visited = true;
 
@@ -32,6 +38,7 @@ const djikstra = (walls, startPos, endPos, numRows, numCols) => {
         shortestPath: getNodesInShortestPath(endNode).map(
           (node) => `${node.rowIdx}, ${node.colIdx}, ${node.distance}`
         ),
+        success: true,
       };
     }
     updateUnvisitedNeighbors(closestNode, grid, numRows, numCols);

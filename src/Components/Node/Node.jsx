@@ -25,7 +25,7 @@ const Node = ({
   const nodeRef = useRef(null);
 
   useEffect(() => {
-    const animateNode = (nodeArray, className) => {
+    const animateNode = (nodeArray, className, speed) => {
       const index = nodeArray
         .map((node) => node.split(", ").slice(0, 2).join(", "))
         .indexOf(`${rowIdx}, ${colIdx}`);
@@ -37,15 +37,18 @@ const Node = ({
         setTimeout(() => {
           nodeRef.current.classList.add(className);
           if (index === nodeArray.length - 1) setAnimatedVisitedNodes(true);
-        }, distance * 100);
+        }, distance * speed);
       }
     };
-    if (visualize) {
-      animateNode(visitedNodes, "visited");
+    if (visualize & (visitedNodes.length !== 0)) {
+      animateNode(visitedNodes, "visited", 100);
 
-      if (animatedVisitedNodes) {
-        animateNode(shortestPath, "shortestPath");
+      if (animatedVisitedNodes & (shortestPath.length !== 0)) {
+        animateNode(shortestPath, "shortestPath", 50);
       }
+    } else {
+      nodeRef.current.classList.remove("visited");
+      nodeRef.current.classList.remove("shortestPath");
     }
   }, [
     visualize,

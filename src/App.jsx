@@ -1,8 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Grid from "./Components/Visualizer/Grid";
 import Header from "./Components/Header/Header";
 import Node from "./Components/Node/Node";
-import djikstra from "./algorithms/djikstra";
+import djikstra from "./algorithms/Path Finding Algorithms/djikstra";
+import generateRandomMaze from "./algorithms/Maze Algorithms/randomMaze";
 import "./App.css";
 
 const nodeSide = 30;
@@ -10,19 +11,32 @@ const numRows = 23;
 const numCols = 56;
 
 function App() {
+  const getRandomInt = (max) => {
+    return Math.floor(Math.random() * max);
+  };
+
+  const getRandomPoint = (numRows, numCols) => {
+    return [getRandomInt(numRows), getRandomInt(numCols)];
+  };
+
   const [moveStart, setMoveStart] = useState(false);
   const [moveEnd, setMoveEnd] = useState(false);
   const [wallMode, setWallMode] = useState(false);
   const [eraseMode, setEraseMode] = useState(false);
   const [mouseDown, setMouseDown] = useState(false);
-  const [startPos, setStartPos] = useState([0, 0]);
-  const [endPos, setEndPos] = useState([0, 2]);
+  const [startPos, setStartPos] = useState(getRandomPoint(numRows, numCols));
+  const [endPos, setEndPos] = useState(getRandomPoint(numRows, numCols));
+  while (endPos == startPos) {
+    setEndPos(getRandomPoint(numRows, numCols));
+  }
   const [nodes, setNodes] = useState([]);
   const [walls, setWalls] = useState([]);
   const [visitedNodes, setVisitedNodes] = useState([]);
   const [shortestPath, setShortestPath] = useState([]);
   const [visualize, setVisualize] = useState(false);
   const [animatedVisitedNodes, setAnimatedVisitedNodes] = useState(false);
+
+  const appRef = useRef(null);
 
   useEffect(() => {
     const temp_list = [];
@@ -103,7 +117,7 @@ function App() {
 
   const visualizeAlgorithm = () => {
     setVisualize(true);
-    const { visitedNodesInOrder, shortestPath } = djikstra(
+    const { visitedNodesInOrder, shortestPath, success } = djikstra(
       walls,
       startPos,
       endPos,
@@ -114,6 +128,31 @@ function App() {
     setShortestPath(shortestPath);
   };
 
+  const resetGrid = () => {
+    setAnimatedVisitedNodes(false);
+    setVisitedNodes(false);
+    setShortestPath(false);
+    setStartPos(getRandomPoint(numRows, numCols));
+    setEndPos(getRandomPoint(numRows, numCols));
+    setWalls([]);
+    setVisualize(false);
+  };
+
+  const createMaze = (mazeType) => {
+    if (visualize) resetGrid();
+    if (mazeType === "Random Maze (Sparse)") {
+      const maze = generateRandomMaze(startPos, endPos, numRows, numCols, 0.1);
+      setWalls(maze);
+    } else if (mazeType === "Random Maze (Dense)") {
+      const maze = generateRandomMaze(startPos, endPos, numRows, numCols, 0.3);
+      console.log(
+        maze.includes(startPos.join(", ")),
+        maze.includes(endPos.join(", "))
+      );
+      setWalls(maze);
+    }
+  };
+
   return (
     <div
       className="App"
@@ -121,6 +160,7 @@ function App() {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       tabIndex={0}
+      ref={appRef}
     >
       <Header
         moveStart={moveStart}
@@ -128,6 +168,8 @@ function App() {
         wallMode={wallMode}
         eraseMode={eraseMode}
         visualizeAlgorithm={visualizeAlgorithm}
+        resetGrid={resetGrid}
+        createMaze={createMaze}
       />
       <Grid
         moveStart={moveStart}

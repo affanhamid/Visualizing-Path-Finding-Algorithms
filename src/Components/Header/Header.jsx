@@ -1,6 +1,6 @@
 import React from "react";
 import "./Header.css";
-import Toggle from "../Toggle/Toggle";
+import DropDown from "../../DropDown/DropDown";
 
 const Header = ({
   moveStart,
@@ -8,18 +8,43 @@ const Header = ({
   wallMode,
   eraseMode,
   visualizeAlgorithm,
+  resetGrid,
+  createMaze,
 }) => {
+  const handleMazeChange = (e) => {
+    createMaze(e.target.value);
+  };
   return (
     <header>
-      <div className="header__top"></div>
-      <div className="header__button">
-        <button onClick={visualizeAlgorithm}>Visualize</button>
+      <div className="header__left">
+        <div>Cursor Mode:</div>
+        <div>
+          {moveStart
+            ? "Moving Start Node"
+            : moveEnd
+            ? "Moving End Node"
+            : wallMode
+            ? "Creating Walls Mode"
+            : eraseMode
+            ? "Eraser Mode"
+            : "None Selected"}
+        </div>
       </div>
-      <div className="header__bottom">
-        <Toggle toggleVar={moveStart} toggleMessage="Move Start Node" />
-        <Toggle toggleVar={moveEnd} toggleMessage="Move End Node" />
-        <Toggle toggleVar={wallMode} toggleMessage="Add Walls" />
-        <Toggle toggleVar={eraseMode} toggleMessage="Remove Walls" />
+      <div className="header__button">
+        <button onClick={visualizeAlgorithm}>Visualize Algorithm</button>
+      </div>
+      <div className="header__right">
+        <DropDown
+          name="Mazes"
+          options={[
+            "Select Maze",
+            "Procedural Maze",
+            "Random Maze (Sparse)",
+            "Random Maze (Dense)",
+          ]}
+          handleChange={handleMazeChange}
+        />
+        <button onClick={resetGrid}>Reset Grid</button>
       </div>
     </header>
   );
