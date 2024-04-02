@@ -1,0 +1,15 @@
+.visualizer__grid {
+    display:grid;
+    gap: 0px;
+}
+
+.row {
+    display:flex
+}
+
+.visualizer {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height:100%
+}
