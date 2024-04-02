@@ -2,3 +2,23 @@
     border: 1px solid #0000003e;
     overflow: hidden;
 }
+
+.visited {
+    background-color: blue;
+}
+
+.start {
+    background-color: green;
+}
+
+.end {
+    background-color: red;
+}
+
+.wall {
+    background-color: black;
+}
+
+.shortestPath {
+    background-color: yellow;
+}

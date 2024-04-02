@@ -1,15 +1,11 @@
 .visualizer__grid {
     display:grid;
     gap: 0px;
+    padding:5px;
 }
 
-.row {
-    display:flex
-}
-
-.visualizer {
+.visualizer__gridContainer {
     display:flex;
     justify-content: center;
-    align-items: center;
     height:100%
 }

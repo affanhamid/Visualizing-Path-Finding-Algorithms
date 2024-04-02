@@ -1,45 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import "./Header.css";
+import Toggle from "../Toggle/Toggle";
 
-export const Header = ({
+const Header = ({
   moveStart,
   moveEnd,
   wallMode,
-  setMoveStart,
-  setMoveEnd,
-  setWallMode,
-  setVisualize,
+  eraseMode,
+  visualizeAlgorithm,
 }) => {
   return (
     <header>
-      <label htmlFor="moveStart">Move Start Node</label>
-      <input
-        type="checkbox"
-        name="moveStart"
-        id="moveStart"
-        onChange={() => setMoveStart((moveStart) => !moveStart)}
-        checked={moveStart}
-      />
-
-      <label htmlFor="moveEnd">Move End Node</label>
-      <input
-        type="checkbox"
-        name="moveEnd"
-        id="moveEnd"
-        onChange={() => setMoveEnd((moveEnd) => !moveEnd)}
-        checked={moveEnd}
-      />
-
-      <label htmlFor="wallMode">Place Walls</label>
-      <input
-        type="checkbox"
-        name="wallMode"
-        id="wallMode"
-        onChange={() => setWallMode((wallMode) => !wallMode)}
-        checked={wallMode}
-      />
-
-      <button onClick={setVisualize(true)}>Visualize</button>
+      <div className="header__top"></div>
+      <div className="header__button">
+        <button onClick={visualizeAlgorithm}>Visualize</button>
+      </div>
+      <div className="header__bottom">
+        <Toggle toggleVar={moveStart} toggleMessage="Move Start Node" />
+        <Toggle toggleVar={moveEnd} toggleMessage="Move End Node" />
+        <Toggle toggleVar={wallMode} toggleMessage="Add Walls" />
+        <Toggle toggleVar={eraseMode} toggleMessage="Remove Walls" />
+      </div>
     </header>
   );
 };
+
+export default Header;

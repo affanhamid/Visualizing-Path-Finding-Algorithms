@@ -1,61 +1,93 @@
-export const djikstra = (nodes, startPos, endPos) => {
+const djikstra = (walls, startPos, endPos, numRows, numCols) => {
+  console.log(walls);
+  const { grid, startNode, endNode } = createGrid(
+    walls,
+    startPos,
+    endPos,
+    numRows,
+    numCols
+  );
+
   const visitedNodesInOrder = [];
 
-  const { grid, startNode, endNode } = getAllNodes(nodes, startPos, endPos);
   startNode.distance = 0;
+  const unvistedNodes = grid.flat();
+  while (!!unvistedNodes.length) {
+    unvistedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
+    const closestNode = unvistedNodes.shift();
 
-  const unvisitedNodes = grid;
-
-  while (!!unvisitedNodes.length) {
-    sortNodesByDistance(unvisitedNodes);
-
-    const closestNode = unvisitedNodes.shift();
+    if (closestNode.isWall) continue;
 
     if (closestNode.distance === Infinity) return visitedNodesInOrder;
-    closestNode.isVVisited = true;
-    visitedNodesInOrderpush(closestNode);
 
-    if (closestNode === endNode) return visitedNodesInOrder;
+    closestNode.visited = true;
 
-    updateUnvisitedNeighbors(closestNode, grid);
+    visitedNodesInOrder.push(closestNode);
+
+    if (closestNode === endNode) {
+      return {
+        visitedNodesInOrder: visitedNodesInOrder.map(
+          (node) => `${node.rowIdx}, ${node.colIdx}, ${node.distance}`
+        ),
+        shortestPath: getNodesInShortestPath(endNode).map(
+          (node) => `${node.rowIdx}, ${node.colIdx}, ${node.distance}`
+        ),
+      };
+    }
+    updateUnvisitedNeighbors(closestNode, grid, numRows, numCols);
   }
 };
 
-const updateUnvisitedNeighbors = (node, grid) => {
-  const unvisitedNeighbors = getUnvisitedNeighbors(node, grid);
-  for (const neighbor of unvisitedNeighbors) {
-    neighbor.distance = node.distance + 1;
-    neighbor.previousNode = node;
+const createGrid = (walls, startPos, endPos, numRows, numCols) => {
+  const grid = [];
+
+  for (let rowIdx = 0; rowIdx < numRows; rowIdx++) {
+    const row = [];
+    for (let colIdx = 0; colIdx < numCols; colIdx++) {
+      row.push({
+        rowIdx,
+        colIdx,
+        distance: Infinity,
+        isWall: walls.includes(`${rowIdx}, ${colIdx}`),
+      });
+    }
+    grid.push(row);
   }
-};
 
-const getUnvisitedNeighbors = (node, grid) => {
-  const neighbors = [];
-  const { col, row } = node;
-  if (row > 0) neighbors.push(grid[row - 1][col]);
-  if (row < grid.length - 1) neighbors.push(grid[row + 1][col]);
-  if (col > 0) neighbors.push(grid[row][col - 1]);
-  if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
-  return neighbors.filter((neighbor) => !neighbor.isVisited);
-};
-
-const sortNodesByDistance = (nodes) => {
-  nodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
-};
-
-const getAllNodes = (nodes, startPos, endPos) => {
-  const grid = nodes.map((Node) => ({
-    rowIdx: Node.props.rowIdx,
-    colIdx: Node.props.colIdx,
-    distance: Infinity,
-  }));
-
-  const startNode = grid.find(
-    (Node) => (Node.rowIdx === startPos[0]) & (Node.colIdx === startPos[1])
-  );
-  const endNode = grid.find(
-    (Node) => (Node.rowIdx === endPos[0]) & (Node.colIdx === endPos[1])
-  );
+  const startNode = grid[startPos[0]][startPos[1]];
+  const endNode = grid[endPos[0]][endPos[1]];
 
   return { grid: grid, startNode: startNode, endNode: endNode };
 };
+
+const getUnvisitedNeighbors = (node, grid, numRows, numCols) => {
+  const neighbors = [];
+  const { rowIdx, colIdx } = node;
+  if (rowIdx > 0) neighbors.push(grid[rowIdx - 1][colIdx]);
+  if (rowIdx < numRows - 1) neighbors.push(grid[rowIdx + 1][colIdx]);
+  if (colIdx > 0) neighbors.push(grid[rowIdx][colIdx - 1]);
+  if (colIdx < numCols - 1) neighbors.push(grid[rowIdx][colIdx + 1]);
+  return neighbors;
+};
+
+const updateUnvisitedNeighbors = (node, grid, numRows, numCols) => {
+  const neighbors = getUnvisitedNeighbors(node, grid, numRows, numCols);
+  neighbors.forEach((neighbor) => {
+    if (neighbor.distance === Infinity) {
+      neighbor.distance = node.distance + 1;
+      neighbor.prevNode = node;
+    }
+  });
+};
+
+export const getNodesInShortestPath = (endNode) => {
+  const nodesInShortestPath = [];
+  let currNode = endNode;
+  while (currNode != null) {
+    nodesInShortestPath.unshift(currNode);
+    currNode = currNode.prevNode;
+  }
+  return nodesInShortestPath;
+};
+
+export default djikstra;
