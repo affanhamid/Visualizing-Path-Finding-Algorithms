@@ -1,59 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Node from "../Node/Node";
 import "./Visualizer.css";
+import { djikstra } from "../../algorithms/djikstra";
 
-const Visualizer = () => {
+const Visualizer = ({ moveStart, moveEnd, wallMode, mouseDown, visualize }) => {
   const nodeSide = 30;
   const numRows = 23;
   const numCols = 56;
-  const [start_row, start_col] = [1, 1];
-  const [end_row, end_col] = [20, 35];
+  const [startPos, setStartPos] = useState([1, 1]);
+  const [endPos, setEndPos] = useState([1, 3]);
   const [nodes, setNodes] = useState([]);
-  const [keyPressed, setKeyPressed] = useState("");
+  const [walls, setWalls] = useState([]);
 
   useEffect(() => {
     const temp_list = [];
-    for (let row_idx = 1; row_idx <= numRows; row_idx++) {
-      for (let col_idx = 1; col_idx <= numCols; col_idx++) {
+    for (let rowIdx = 1; rowIdx <= numRows; rowIdx++) {
+      for (let colIdx = 1; colIdx <= numCols; colIdx++) {
         temp_list.push(
           <Node
             side={nodeSide}
-            start={
-              (row_idx === start_row) & (col_idx === start_col) ? true : false
-            }
-            end={(row_idx === end_row) & (col_idx === end_col) ? true : false}
-            nodeRow={row_idx}
-            nodeCol={col_idx}
-            keyPressed={keyPressed}
+            startPos={startPos}
+            endPos={endPos}
+            rowIdx={rowIdx}
+            colIdx={colIdx}
+            moveStart={moveStart}
+            moveEnd={moveEnd}
+            setStartPos={setStartPos}
+            setEndPos={setEndPos}
+            wallMode={wallMode}
+            mouseDown={mouseDown}
+            walls={walls}
+            setWalls={setWalls}
           />
         );
       }
     }
     setNodes(temp_list);
-  }, [start_row, start_col, end_row, end_col]);
+  }, [startPos, endPos, moveStart, mouseDown, moveEnd]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      const key = e.key;
-      setKeyPressed(key);
-    };
-    document.addEventListener("keydown", handleKeyDown, true);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleKeyUp = (e) => {
-      setKeyPressed("");
-    };
-    document.addEventListener("keyup", handleKeyUp, true);
-
-    return () => {
-      document.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
+    if (visualize) {
+      djikstra(nodes, startPos, endPos);
+    }
+  }, [visualize]);
 
   return (
     <div className="visualizer">
