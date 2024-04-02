@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Visualizing-Path-Finding-Algorithms/static/css/main.e2307f52.css",
-    "main.js": "/Visualizing-Path-Finding-Algorithms/static/js/main.02477896.js",
+    "main.css": "/Visualizing-Path-Finding-Algorithms/static/css/main.0c1e7bef.css",
+    "main.js": "/Visualizing-Path-Finding-Algorithms/static/js/main.5992fae2.js",
     "index.html": "/Visualizing-Path-Finding-Algorithms/index.html",
-    "main.e2307f52.css.map": "/Visualizing-Path-Finding-Algorithms/static/css/main.e2307f52.css.map",
-    "main.02477896.js.map": "/Visualizing-Path-Finding-Algorithms/static/js/main.02477896.js.map"
+    "main.0c1e7bef.css.map": "/Visualizing-Path-Finding-Algorithms/static/css/main.0c1e7bef.css.map",
+    "main.5992fae2.js.map": "/Visualizing-Path-Finding-Algorithms/static/js/main.5992fae2.js.map"
   },
   "entrypoints": [
-    "static/css/main.e2307f52.css",
-    "static/js/main.02477896.js"
+    "static/css/main.0c1e7bef.css",
+    "static/js/main.5992fae2.js"
   ]
 }
