@@ -21,6 +21,8 @@ const Node = ({
   visualize,
   animatedVisitedNodes,
   setAnimatedVisitedNodes,
+  animateWalls,
+  setAnimateWalls,
 }) => {
   const nodeRef = useRef(null);
 
@@ -59,6 +61,20 @@ const Node = ({
     animatedVisitedNodes,
     shortestPath,
   ]);
+
+  useEffect(() => {
+    if (animateWalls) {
+      const wallIndex = walls.indexOf(`${rowIdx}, ${colIdx}`);
+      if (wallIndex >= 0) {
+        setTimeout(() => {
+          nodeRef.current.classList.add("wall");
+          if (wallIndex === walls.length - 1) {
+            setAnimateWalls(false);
+          }
+        }, wallIndex * 50);
+      }
+    }
+  }, [animateWalls, colIdx, rowIdx, walls, setAnimateWalls]);
 
   const handleMouseEnter = (e) => {
     if (moveStart) {
@@ -109,12 +125,12 @@ const Node = ({
     else {
       nodeRef.current.classList.remove("end");
     }
-    if (walls.includes(`${rowIdx}, ${colIdx}`))
+    if (walls.includes(`${rowIdx}, ${colIdx}`) & !animateWalls)
       nodeRef.current.classList.add("wall");
     else {
       nodeRef.current.classList.remove("wall");
     }
-  }, [walls, startPos, endPos, colIdx, rowIdx]);
+  }, [walls, startPos, endPos, colIdx, rowIdx, animateWalls]);
 
   return (
     <div
@@ -127,7 +143,9 @@ const Node = ({
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouse}
       onClick={handleMouse}
-    ></div>
+    >
+      {`${rowIdx}, ${colIdx}`}
+    </div>
   );
 };
 

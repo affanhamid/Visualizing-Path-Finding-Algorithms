@@ -1,6 +1,7 @@
 .node {
     border: 1px solid #0000003e;
     overflow: hidden;
+    font-size: 11px;
 }
 
 .visited {

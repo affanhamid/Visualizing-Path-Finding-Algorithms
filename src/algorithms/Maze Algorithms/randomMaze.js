@@ -11,7 +11,7 @@ const generateRandomMaze = (startPos, endPos, numRows, numCols, sparsity) => {
       (randomPoint === endString) |
       walls.includes(randomPoint)
     ) {
-      randomPoint = getRandomPoint(numRows, numCols).join(", ");
+      randomPoint = [getRandomPoint(numRows, numCols)].join(", ");
     }
     walls.push(randomPoint);
   }

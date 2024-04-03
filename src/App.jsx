@@ -4,6 +4,7 @@ import Header from "./Components/Header/Header";
 import Node from "./Components/Node/Node";
 import djikstra from "./algorithms/Path Finding Algorithms/djikstra";
 import generateRandomMaze from "./algorithms/Maze Algorithms/randomMaze";
+import generateRecursiveDivisionMaze from "./algorithms/Maze Algorithms/recursiveDivision";
 import "./App.css";
 
 const nodeSide = 30;
@@ -12,7 +13,7 @@ const numCols = 56;
 
 function App() {
   const getRandomInt = (max) => {
-    return Math.floor(Math.random() * max);
+    return Math.floor(Math.random() * (max - 2)) + 1;
   };
 
   const getRandomPoint = (numRows, numCols) => {
@@ -35,6 +36,7 @@ function App() {
   const [shortestPath, setShortestPath] = useState([]);
   const [visualize, setVisualize] = useState(false);
   const [animatedVisitedNodes, setAnimatedVisitedNodes] = useState(false);
+  const [animateWalls, setAnimateWalls] = useState(false);
 
   const appRef = useRef(null);
 
@@ -63,6 +65,8 @@ function App() {
             visualize={visualize}
             animatedVisitedNodes={animatedVisitedNodes}
             setAnimatedVisitedNodes={setAnimatedVisitedNodes}
+            animateWalls={animateWalls}
+            setAnimateWalls={setAnimateWalls}
           />
         );
       }
@@ -81,6 +85,7 @@ function App() {
     visitedNodes,
     visualize,
     animatedVisitedNodes,
+    animateWalls,
   ]);
 
   const handleKeyDown = useCallback((e) => {
@@ -143,13 +148,20 @@ function App() {
     if (mazeType === "Random Maze (Sparse)") {
       const maze = generateRandomMaze(startPos, endPos, numRows, numCols, 0.1);
       setWalls(maze);
+      setAnimateWalls(true);
     } else if (mazeType === "Random Maze (Dense)") {
       const maze = generateRandomMaze(startPos, endPos, numRows, numCols, 0.3);
-      console.log(
-        maze.includes(startPos.join(", ")),
-        maze.includes(endPos.join(", "))
+      setWalls(maze);
+      setAnimateWalls(true);
+    } else if (mazeType === "Recursive Division Maze") {
+      const maze = generateRecursiveDivisionMaze(
+        startPos,
+        endPos,
+        numRows,
+        numCols
       );
       setWalls(maze);
+      setAnimateWalls(false);
     }
   };
 

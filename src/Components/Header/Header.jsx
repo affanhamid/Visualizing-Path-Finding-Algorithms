@@ -38,7 +38,7 @@ const Header = ({
           name="Mazes"
           options={[
             "Select Maze",
-            "Procedural Maze",
+            "Recursive Division Maze",
             "Random Maze (Sparse)",
             "Random Maze (Dense)",
           ]}
