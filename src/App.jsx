@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import Grid from "./Components/Visualizer/Grid";
+import Grid from "./Components/Grid/Grid";
 import Header from "./Components/Header/Header";
-import Node from "./Components/Node/Node";
 import djikstra from "./algorithms/Path Finding Algorithms/djikstra";
 import generateRandomMaze from "./algorithms/Maze Algorithms/randomMaze";
 import generateRecursiveDivisionMaze from "./algorithms/Maze Algorithms/recursiveDivision";
@@ -44,49 +43,17 @@ function App() {
     const temp_list = [];
     for (let rowIdx = 0; rowIdx < numRows; rowIdx++) {
       for (let colIdx = 0; colIdx < numCols; colIdx++) {
-        temp_list.push(
-          <Node
-            side={nodeSide}
-            startPos={startPos}
-            endPos={endPos}
-            rowIdx={rowIdx}
-            colIdx={colIdx}
-            moveStart={moveStart}
-            moveEnd={moveEnd}
-            setStartPos={setStartPos}
-            setEndPos={setEndPos}
-            wallMode={wallMode}
-            eraseMode={eraseMode}
-            mouseDown={mouseDown}
-            walls={walls}
-            setWalls={setWalls}
-            visitedNodes={visitedNodes}
-            shortestPath={shortestPath}
-            visualize={visualize}
-            animatedVisitedNodes={animatedVisitedNodes}
-            setAnimatedVisitedNodes={setAnimatedVisitedNodes}
-            animateWalls={animateWalls}
-            setAnimateWalls={setAnimateWalls}
-          />
-        );
+        temp_list.push({
+          side: nodeSide,
+          startPos: startPos,
+          endPos: endPos,
+          rowIdx: rowIdx,
+          colIdx: colIdx,
+        });
       }
     }
     setNodes(temp_list);
-  }, [
-    startPos,
-    endPos,
-    moveStart,
-    mouseDown,
-    moveEnd,
-    wallMode,
-    walls,
-    eraseMode,
-    shortestPath,
-    visitedNodes,
-    visualize,
-    animatedVisitedNodes,
-    animateWalls,
-  ]);
+  }, [startPos, endPos]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === "s") {
@@ -192,6 +159,17 @@ function App() {
         numCols={numCols}
         nodeSide={nodeSide}
         nodes={nodes}
+        setStartPos={setStartPos}
+        setEndPos={setEndPos}
+        walls={walls}
+        setWalls={setWalls}
+        visitedNodes={visitedNodes}
+        shortestPath={shortestPath}
+        visualize={visualize}
+        animatedVisitedNodes={animatedVisitedNodes}
+        setAnimatedVisitedNodes={setAnimatedVisitedNodes}
+        animateWalls={animateWalls}
+        setAnimateWalls={setAnimateWalls}
       />
     </div>
   );
