@@ -1,29 +1,29 @@
-const generateRandomMaze = (startPos, endPos, numRows, numCols, sparsity) => {
-  const startString = startPos.join(", ");
-  const endString = endPos.join(", ");
+import { pointToString, getRandomPoint } from "../helperFns";
 
+/**
+ * Generates walls at random position. The number of walls depends upon the "sparsity parameter"
+ * @param {Number} width - width of the grid
+ * @param {Number} height - height of the grid
+ * @param {Number} sparsity float
+ * @returns {Array<String>}
+ */
+
+const generateRandomMaze = (width, height, sparsity) => {
   const walls = [];
-  for (let i = 0; i < numRows * numCols * sparsity; i++) {
-    let randomPoint = getRandomPoint(numRows, numCols).join(", ");
 
-    while (
-      (randomPoint === startString) |
-      (randomPoint === endString) |
-      walls.includes(randomPoint)
-    ) {
-      randomPoint = [getRandomPoint(numRows, numCols)].join(", ");
+  // The number of walls to be placed is a fraction of the total area of the grid
+  for (let i = 0; i < height * width * sparsity; i++) {
+    let randomPoint = pointToString(getRandomPoint(width, height));
+
+    // Condition to ensure that the point we chose isn't already a wall
+    while (walls.includes(randomPoint)) {
+      randomPoint = pointToString(getRandomPoint(width, height));
     }
+
     walls.push(randomPoint);
   }
 
   return walls;
 };
 
-const getRandomInt = (max) => {
-  return Math.floor(Math.random() * max);
-};
-
-const getRandomPoint = (numRows, numCols) => {
-  return [getRandomInt(numRows), getRandomInt(numCols)];
-};
 export default generateRandomMaze;

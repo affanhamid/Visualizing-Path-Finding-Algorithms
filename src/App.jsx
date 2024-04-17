@@ -1,175 +1,155 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import Grid from "./Components/Grid/Grid";
-import Header from "./Components/Header/Header";
-import djikstra from "./algorithms/Path Finding Algorithms/djikstra";
-import generateRandomMaze from "./algorithms/Maze Algorithms/randomMaze";
-import generateRecursiveDivisionMaze from "./algorithms/Maze Algorithms/recursiveDivision";
+import {
+  getRandomPoint,
+  pointToString,
+  chooseSafePoint,
+} from "./algorithms/helperFns";
+import { Grid, Header } from "./Components";
+import { createMaze } from "./algorithms/Maze Algorithms/mazeGenerator";
+import findPath from "./algorithms/Path Finding Algorithms/findPath";
 import "./App.css";
 
-const nodeSide = 30;
-const numRows = 23;
-const numCols = 56;
+const nodeWidth = 30;
+const height = 25;
+const width = 53;
 
 function App() {
-  const getRandomInt = (max) => {
-    return Math.floor(Math.random() * (max - 2)) + 1;
-  };
+  // Boolean variables for various events
+  const [mode, setMode] = useState("");
+  const [mouseState, setMouseState] = useState(0);
 
-  const getRandomPoint = (numRows, numCols) => {
-    return [getRandomInt(numRows), getRandomInt(numCols)];
-  };
+  // Positions for start and end nodes
+  const [startPos, setStartPos] = useState(
+    pointToString(getRandomPoint(width, height))
+  );
+  const [endPos, setEndPos] = useState(
+    pointToString(getRandomPoint(width, height))
+  );
 
-  const [moveStart, setMoveStart] = useState(false);
-  const [moveEnd, setMoveEnd] = useState(false);
-  const [wallMode, setWallMode] = useState(false);
-  const [eraseMode, setEraseMode] = useState(false);
-  const [mouseDown, setMouseDown] = useState(false);
-  const [startPos, setStartPos] = useState(getRandomPoint(numRows, numCols));
-  const [endPos, setEndPos] = useState(getRandomPoint(numRows, numCols));
-  while (endPos == startPos) {
-    setEndPos(getRandomPoint(numRows, numCols));
-  }
+  // Nodes and walls
   const [nodes, setNodes] = useState([]);
   const [walls, setWalls] = useState([]);
+
+  const [algorithm, setAlgorithm] = useState("");
+  const [allowDiagonalMoves, setAllowDiagonalMoves] = useState("");
+
+  // Results from the path finding algorithm
   const [visitedNodes, setVisitedNodes] = useState([]);
   const [shortestPath, setShortestPath] = useState([]);
-  const [visualize, setVisualize] = useState(false);
-  const [animatedVisitedNodes, setAnimatedVisitedNodes] = useState(false);
-  const [animateWalls, setAnimateWalls] = useState(false);
 
+  // Ref for the app div
   const appRef = useRef(null);
 
+  // Creating the node data and saving to the nodes variable
   useEffect(() => {
     const temp_list = [];
-    for (let rowIdx = 0; rowIdx < numRows; rowIdx++) {
-      for (let colIdx = 0; colIdx < numCols; colIdx++) {
-        temp_list.push({
-          side: nodeSide,
+    for (let y = 0; y < height; y++) {
+      let row = [];
+      for (let x = 0; x < width; x++) {
+        row.push({
           startPos: startPos,
           endPos: endPos,
-          rowIdx: rowIdx,
-          colIdx: colIdx,
+          x: x,
+          y: y,
         });
       }
+      temp_list.push(row);
     }
     setNodes(temp_list);
-  }, [startPos, endPos]);
+  }, [endPos, startPos]);
 
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === "s") {
-      setMoveStart((moveStart) => !moveStart);
-      setMoveEnd((moveEnd) => false);
-      setWallMode((wallMode) => false);
-      setEraseMode((eraseMode) => false);
-    } else if (e.key === "e") {
-      setMoveEnd((moveEnd) => !moveEnd);
-      setMoveStart((moveStart) => false);
-      setWallMode((wallMode) => false);
-      setEraseMode((eraseMode) => false);
-    } else if (e.key === "w") {
-      setWallMode((wallMode) => !wallMode);
-      setEraseMode((eraseMode) => false);
-      setMoveStart((moveStart) => false);
-      setMoveEnd((moveEnd) => false);
-    } else if (e.key === "r") {
-      setEraseMode((eraseMode) => !eraseMode);
-      setWallMode((wallMode) => false);
-      setMoveStart((moveStart) => false);
-      setMoveEnd((moveEnd) => false);
-    }
-  }, []);
-
-  const handleMouseDown = useCallback((e) => {
-    setMouseDown((mouseDown) => true);
-  }, []);
-
-  const handleMouseUp = useCallback((e) => {
-    setMouseDown((mouseDown) => false);
-  }, []);
-
+  // Getting the output from the path finding algorithm
   const visualizeAlgorithm = () => {
-    setVisualize(true);
-    const { visitedNodesInOrder, shortestPath, success } = djikstra(
+    const { visitedNodesInOrder, shortestPath } = findPath(
+      nodes,
       walls,
       startPos,
       endPos,
-      numRows,
-      numCols
+      height,
+      width,
+      allowDiagonalMoves,
+      algorithm
     );
     setVisitedNodes(visitedNodesInOrder);
     setShortestPath(shortestPath);
   };
 
+  // Reseting the grid by setting all the values back to default
+
   const resetGrid = () => {
-    setAnimatedVisitedNodes(false);
-    setVisitedNodes(false);
-    setShortestPath(false);
-    setStartPos(getRandomPoint(numRows, numCols));
-    setEndPos(getRandomPoint(numRows, numCols));
+    setVisitedNodes([]);
+    setShortestPath([]);
+    setStartPos(pointToString(getRandomPoint(width, height)));
+    setEndPos(pointToString(getRandomPoint(width, height)));
     setWalls([]);
-    setVisualize(false);
   };
 
-  const createMaze = (mazeType) => {
-    if (visualize) resetGrid();
-    if (mazeType === "Random Maze (Sparse)") {
-      const maze = generateRandomMaze(startPos, endPos, numRows, numCols, 0.1);
-      setWalls(maze);
-      setAnimateWalls(true);
-    } else if (mazeType === "Random Maze (Dense)") {
-      const maze = generateRandomMaze(startPos, endPos, numRows, numCols, 0.3);
-      setWalls(maze);
-      setAnimateWalls(true);
-    } else if (mazeType === "Recursive Division Maze") {
-      const maze = generateRecursiveDivisionMaze(
-        startPos,
-        endPos,
-        numRows,
-        numCols
-      );
-      setWalls(maze);
-      setAnimateWalls(false);
+  /**
+   * Handling events for various user key presses
+   * Pressing s moves the start node to the cursor until e is pressed again
+   * Pressing e moves the end node to the cursor until e is pressed again
+   * Pressing w enables wall mode. Clicking on any node turns it into a wall
+   * Pressing r enables erasor mode. Clicking on any wall turns it back to normal
+   * @param {Event} e
+   * @param {React.Component} mode
+   * @returns
+   */
+  const handleKeyDown = (e, mode) => {
+    if (["s", "e", "w", "r"].includes(e.key)) {
+      return mode === e.key ? "" : e.key;
     }
   };
 
   return (
     <div
       className="App"
-      onKeyDown={handleKeyDown}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      onKeyDown={useCallback(
+        (e) => {
+          setMode(handleKeyDown(e, mode));
+        },
+        [mode]
+      )}
+      onMouseDown={useCallback((e) => {
+        setMouseState(1);
+      }, [])}
+      onMouseUp={useCallback((e) => {
+        setMouseState(0);
+      }, [])}
       tabIndex={0}
       ref={appRef}
     >
       <Header
-        moveStart={moveStart}
-        moveEnd={moveEnd}
-        wallMode={wallMode}
-        eraseMode={eraseMode}
+        mode={mode}
         visualizeAlgorithm={visualizeAlgorithm}
         resetGrid={resetGrid}
-        createMaze={createMaze}
+        algorithm={algorithm}
+        setAlgorithm={setAlgorithm}
+        setAllowDiagonalMoves={setAllowDiagonalMoves}
+        createMaze={(mazeType) => {
+          const maze = createMaze(mazeType, width, height);
+          setStartPos(chooseSafePoint(maze, width, height));
+          setEndPos(chooseSafePoint(maze, width, height));
+          setWalls(maze);
+        }}
       />
       <Grid
-        moveStart={moveStart}
-        moveEnd={moveEnd}
-        wallMode={wallMode}
-        mouseDown={mouseDown}
-        eraseMode={eraseMode}
-        numCols={numCols}
-        nodeSide={nodeSide}
-        nodes={nodes}
-        setStartPos={setStartPos}
-        setEndPos={setEndPos}
-        walls={walls}
-        setWalls={setWalls}
-        visitedNodes={visitedNodes}
-        shortestPath={shortestPath}
-        visualize={visualize}
-        animatedVisitedNodes={animatedVisitedNodes}
-        setAnimatedVisitedNodes={setAnimatedVisitedNodes}
-        animateWalls={animateWalls}
-        setAnimateWalls={setAnimateWalls}
+        gameState={{ mode: mode, mouseState: mouseState }}
+        dimensions={{ width: width, height: height, nodeWidth: nodeWidth }}
+        gridInfo={{
+          nodes: nodes,
+          walls: walls,
+          startPos: startPos,
+          endPos: endPos,
+        }}
+        setters={{
+          setStartPos: setStartPos,
+          setEndPos: setEndPos,
+          setWalls: setWalls,
+        }}
+        algorithmInfo={{
+          visitedNodes: visitedNodes,
+          shortestPath: shortestPath,
+        }}
       />
     </div>
   );

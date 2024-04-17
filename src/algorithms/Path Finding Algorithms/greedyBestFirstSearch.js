@@ -1,10 +1,5 @@
 import { pointToString, stringToPoint } from "../helperFns";
-import {
-  get4WayNeighbors,
-  getNodesInShortestPath,
-  createGrid,
-  get6WayNeighbors,
-} from "./pathFindingHelpers";
+import { getNodesInShortestPath } from "./pathFindingHelpers";
 
 /**
  * Djikstra's algorithm. It works by setting the "distance" attribute of each node to be Infinity.
@@ -22,14 +17,13 @@ import {
  * @param {Number} width Width of the grid
  * @returns
  */
-export const djikstra = (
+export const greedyBFS = (
   nodes,
   walls,
   startPosString,
   endPosString,
   height,
-  width,
-  allowDiagonalMoves
+  width
 ) => {
   const startPos = stringToPoint(startPosString);
   const endPos = stringToPoint(endPosString);
@@ -102,14 +96,48 @@ export const djikstra = (
     // then its neighbors will have a distance of 0+1 = 1.
     // If the closest node has a distance of for example 5 from the starting node, then its
     // neighbors will have a distance of 5+1 = 6.
-    updateUnvisitedNeighbors(
-      closestNode,
-      grid,
-      height,
-      width,
-      allowDiagonalMoves
-    );
+    updateUnvisitedNeighbors(closestNode, grid, height, width);
   }
+};
+
+const createGrid = (nodes, walls, startPos, endPos, shouldSetDistance) => {
+  const grid = nodes;
+  // The isWall attribute of each node is set to false. This will later be updated in the next loop
+  // Doing it this way is slightly faster than checking the walls array for each iteration.
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[0].length; x++) {
+      grid[y][x].isWall = false;
+      grid[y][x].distance = Infinity;
+    }
+  }
+
+  walls.forEach((wallNode) => {
+    const wallNodePos = stringToPoint(wallNode);
+    grid[wallNodePos[1]][wallNodePos[0]].isWall = true;
+  });
+
+  const startNode = grid[startPos[1]][startPos[0]];
+  const endNode = grid[endPos[1]][endPos[0]];
+
+  return { grid: grid, startNode: startNode, endNode: endNode };
+};
+
+/**
+ * Getting the top, left, bottom, and right neighbors of a node
+ * @param {Object} node
+ * @param {Array<Array>} grid
+ * @param {Number} height
+ * @param {Number} width
+ * @returns
+ */
+const getNeighbors = (node, grid, height, width) => {
+  const neighbors = [];
+  const { x, y } = node;
+  if (y > 0) neighbors.push(grid[y - 1][x]);
+  if (y < height - 1) neighbors.push(grid[y + 1][x]);
+  if (x > 0) neighbors.push(grid[y][x - 1]);
+  if (x < width - 1) neighbors.push(grid[y][x + 1]);
+  return neighbors;
 };
 
 /**
@@ -122,20 +150,16 @@ export const djikstra = (
  * @param {Number} height
  * @param {Number} width
  */
-const updateUnvisitedNeighbors = (
-  node,
-  grid,
-  height,
-  width,
-  allowDiagonalMoves
-) => {
-  const neighbors = allowDiagonalMoves
-    ? get6WayNeighbors(node, grid, height, width)
-    : get4WayNeighbors(node, grid, height, width);
+const updateUnvisitedNeighbors = (node, grid, height, width) => {
+  const neighbors = getNeighbors(node, grid, height, width);
   neighbors.forEach((neighbor) => {
     if (neighbor.distance === Infinity) {
       neighbor.distance = node.distance + 1;
       neighbor.prevNode = node;
     }
   });
+};
+
+const manhattenDistance = (pointA, pointB) => {
+  return Math.abs(pointA.x - pointB.x) + Math.abs(pointA.y - pointB.y);
 };
