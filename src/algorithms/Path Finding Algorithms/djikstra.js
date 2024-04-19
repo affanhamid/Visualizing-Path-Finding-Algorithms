@@ -3,7 +3,7 @@ import {
   get4WayNeighbors,
   getNodesInShortestPath,
   createGrid,
-  get6WayNeighbors,
+  get8WayNeighbors,
 } from "./pathFindingHelpers";
 
 /**
@@ -29,7 +29,9 @@ export const djikstra = (
   endPosString,
   height,
   width,
-  allowDiagonalMoves
+  allowDiagonalMoves,
+  setVisitedNodes,
+  setShortestPath
 ) => {
   const startPos = stringToPoint(startPosString);
   const endPos = stringToPoint(endPosString);
@@ -70,31 +72,30 @@ export const djikstra = (
     // a deadend. Since the closest node is often the neighbor of another visited nodes, it can't
     // have an infinite distance. If it does, then that means that it isn't the neighbor of any
     // of the visited nodes. This means that this node is unreachable from the starting point.
-    if (closestNode.distance === Infinity)
-      return {
-        visitedNodesInOrder: visitedNodesInOrder.map(
-          (node) =>
-            `${pointToString({ x: node.x, y: node.y })}, ${node.distance}`
-        ),
-        shortestPath: [],
-      };
+    if (closestNode.distance === Infinity) {
+      alert("No solution");
+      return;
+    }
 
     // Since we have visited the node, set its visited attribute to true and push it to the
     // visitedNodesInOrder array
     closestNode.visited = true;
     visitedNodesInOrder.push(closestNode);
 
+    setVisitedNodes(
+      visitedNodesInOrder.map(
+        (node) => `${pointToString({ x: node.x, y: node.y })}, ${node.distance}`
+      )
+    );
+    setShortestPath(
+      getNodesInShortestPath(closestNode).map((node) =>
+        pointToString({ x: node.x, y: node.y })
+      )
+    );
+
     // If the closest node is the end node, then our job is done and we have found the end node.
     if (closestNode === endNode) {
-      return {
-        visitedNodesInOrder: visitedNodesInOrder.map(
-          (node) =>
-            `${pointToString({ x: node.x, y: node.y })}, ${node.distance}`
-        ),
-        shortestPath: getNodesInShortestPath(endNode).map((node) =>
-          pointToString({ x: node.x, y: node.y })
-        ),
-      };
+      return;
     }
 
     // This updates the distance of the top, bottom, left, and right nodes of the closestNode
@@ -130,7 +131,7 @@ const updateUnvisitedNeighbors = (
   allowDiagonalMoves
 ) => {
   const neighbors = allowDiagonalMoves
-    ? get6WayNeighbors(node, grid, height, width)
+    ? get8WayNeighbors(node, grid, height, width)
     : get4WayNeighbors(node, grid, height, width);
   neighbors.forEach((neighbor) => {
     if (neighbor.distance === Infinity) {

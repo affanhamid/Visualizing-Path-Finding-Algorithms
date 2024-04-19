@@ -28,10 +28,7 @@ export const createGrid = (
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[0].length; x++) {
       grid[y][x].isWall = false;
-      grid[y][x].gCost = 0;
-      grid[y][x].hCost = 0;
       grid[y][x].prevNode = null;
-      grid[y][x].isWall = null;
       grid[y][x].distance = Infinity;
     }
   }
@@ -73,7 +70,7 @@ export const get4WayNeighbors = (node, grid, height, width) => {
  * @param {Number} width
  * @returns
  */
-export const get6WayNeighbors = (node, grid, height, width, closed) => {
+export const get8WayNeighbors = (node, grid, height, width, closed) => {
   const neighbors = [];
   const { x, y } = node;
   if ((y > 0) & (x > 0)) neighbors.push(grid[y - 1][x - 1]);

@@ -1,5 +1,9 @@
 import { pointToString, stringToPoint } from "../helperFns";
-import { get6WayNeighbors, getNodesInShortestPath } from "./pathFindingHelpers";
+import {
+  get8WayNeighbors,
+  get4WayNeighbors,
+  getNodesInShortestPath,
+} from "./pathFindingHelpers";
 
 export const astar = (
   nodes,
@@ -7,7 +11,10 @@ export const astar = (
   startPosString,
   endPosString,
   height,
-  width
+  width,
+  allowDiagonalMoves,
+  setVisitedNodes,
+  setShortestPath
 ) => {
   const startPos = stringToPoint(startPosString);
   const endPos = stringToPoint(endPosString);
@@ -22,7 +29,9 @@ export const astar = (
 
   open.push(startNode);
 
-  while (open.length > 0) {
+  startNode.gCost = 0;
+
+  while (!!open.length) {
     open.sort(
       (nodeA, nodeB) =>
         calcFCost(nodeA) - calcFCost(nodeB) || nodeA.gCost - nodeB.gCost
@@ -30,39 +39,46 @@ export const astar = (
 
     const currentNode = open.shift();
 
+    closed.push(currentNode);
+    setVisitedNodes(
+      closed.map(
+        (node) =>
+          `${pointToString({ x: node.x, y: node.y })}, ${calcFCost(node)}`
+      )
+    );
+    setShortestPath(
+      getNodesInShortestPath(currentNode).map((node) =>
+        pointToString({ x: node.x, y: node.y })
+      )
+    );
+
     if (currentNode === endNode) {
-      return {
-        visitedNodesInOrder: closed,
-        shortestPath: getNodesInShortestPath(endNode).map((node) =>
-          pointToString({ x: node.x, y: node.y })
-        ),
-      };
+      return;
     }
-    const neighbors = get6WayNeighbors(
-      currentNode,
-      grid,
-      height,
-      width,
-      closed
-    ).filter((neighbor) => !neighbor.isWall & !closed.includes(neighbor));
+    const neighbors = allowDiagonalMoves
+      ? get8WayNeighbors(currentNode, grid, height, width)
+      : get4WayNeighbors(currentNode, grid, height, width);
 
-    neighbors.forEach((neighbor) => {
-      const newMovementCostToNeighbor =
-        currentNode.gCost + getDistance(currentNode, neighbor);
+    neighbors
+      .filter((neighbor) => !neighbor.isWall & !closed.includes(neighbor))
+      .forEach((neighbor) => {
+        const tempG = currentNode.gCost + getDistance(currentNode, neighbor);
 
-      if (
-        newMovementCostToNeighbor < neighbor.gCost ||
-        !open.includes(neighbor)
-      ) {
-        neighbor.gCost = newMovementCostToNeighbor;
+        if (open.includes(neighbor)) {
+          if (tempG < neighbor.gCost) {
+            neighbor.gCost = tempG;
+            neighbor.prevNode = currentNode;
+          }
+        } else {
+          neighbor.gCost = tempG;
+          open.push(neighbor);
+          neighbor.prevNode = currentNode;
+        }
         neighbor.hCost = getDistance(neighbor, endNode);
-        neighbor.fCost = calcFCost(neighbor);
-        neighbor.prevNode = currentNode;
-
-        if (!open.includes(neighbor)) open.push(neighbor);
-      }
-    });
+      });
   }
+  alert("No solution");
+  return;
 };
 
 const createGrid = (nodes, walls, startPos, endPos, shouldSetDistance) => {
@@ -72,11 +88,9 @@ const createGrid = (nodes, walls, startPos, endPos, shouldSetDistance) => {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[0].length; x++) {
       grid[y][x].isWall = false;
-      grid[y][x].gCost = 0;
+      grid[y][x].gCost = Infinity;
       grid[y][x].hCost = 0;
       grid[y][x].prevNode = null;
-      grid[y][x].isWall = null;
-      grid[y][x].djikstraDistance = null;
     }
   }
 

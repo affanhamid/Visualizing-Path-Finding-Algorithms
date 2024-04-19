@@ -1,6 +1,8 @@
 import { djikstra } from "./djikstra";
 import { astar } from "./astar";
 import { greedyBFS } from "./greedyBestFirstSearch";
+import { BFS } from "./breadthFirstSearch";
+import { DFS } from "./depthFirstSearch";
 const findPath = (
   nodes,
   walls,
@@ -9,37 +11,69 @@ const findPath = (
   height,
   width,
   allowDiagonalMoves,
+  setVisitedNodes,
+  setShortestPath,
   algorithm
 ) => {
   if (algorithm === "Djikstra's") {
-    return djikstra(
+    djikstra(
       nodes,
       walls,
       startPos,
       endPos,
       height,
       width,
-      allowDiagonalMoves
+      allowDiagonalMoves,
+      setVisitedNodes,
+      setShortestPath
     );
   } else if (algorithm === "A*") {
-    return astar(
+    astar(
       nodes,
       walls,
       startPos,
       endPos,
       height,
       width,
-      allowDiagonalMoves
+      allowDiagonalMoves,
+      setVisitedNodes,
+      setShortestPath
     );
   } else if (algorithm === "Greedy Best-First Search") {
-    return greedyBFS(
+    greedyBFS(
       nodes,
       walls,
       startPos,
       endPos,
       height,
       width,
-      allowDiagonalMoves
+      allowDiagonalMoves,
+      setVisitedNodes,
+      setShortestPath
+    );
+  } else if (algorithm === "Breadth-First Search") {
+    BFS(
+      nodes,
+      walls,
+      startPos,
+      endPos,
+      height,
+      width,
+      allowDiagonalMoves,
+      setVisitedNodes,
+      setShortestPath
+    );
+  } else if (algorithm === "Depth-First Search") {
+    DFS(
+      nodes,
+      walls,
+      startPos,
+      endPos,
+      height,
+      width,
+      allowDiagonalMoves,
+      setVisitedNodes,
+      setShortestPath
     );
   } else {
     alert("Select an algorithm first!");

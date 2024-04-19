@@ -1,5 +1,9 @@
 import { pointToString, stringToPoint } from "../helperFns";
-import { getNodesInShortestPath } from "./pathFindingHelpers";
+import {
+  get4WayNeighbors,
+  get8WayNeighbors,
+  getNodesInShortestPath,
+} from "./pathFindingHelpers";
 
 /**
  * Djikstra's algorithm. It works by setting the "distance" attribute of each node to be Infinity.
@@ -23,7 +27,10 @@ export const greedyBFS = (
   startPosString,
   endPosString,
   height,
-  width
+  width,
+  allowDiagonalMoves,
+  setVisitedNodes,
+  setShortestPath
 ) => {
   const startPos = stringToPoint(startPosString);
   const endPos = stringToPoint(endPosString);
@@ -60,18 +67,24 @@ export const greedyBFS = (
     // If the cloestNode is a wall, then ignore it
     if (closestNode.isWall) continue;
 
+    setVisitedNodes(
+      visitedNodesInOrder.map(
+        (node) => `${pointToString({ x: node.x, y: node.y })}, ${node.distance}`
+      )
+    );
+    setShortestPath(
+      getNodesInShortestPath(closestNode).map((node) =>
+        pointToString({ x: node.x, y: node.y })
+      )
+    );
+
     // If the closest node has a distance of Infinity, this means that our algorithm has reached
     // a deadend. Since the closest node is often the neighbor of another visited nodes, it can't
     // have an infinite distance. If it does, then that means that it isn't the neighbor of any
     // of the visited nodes. This means that this node is unreachable from the starting point.
-    if (closestNode.distance === Infinity)
-      return {
-        visitedNodesInOrder: visitedNodesInOrder.map(
-          (node) =>
-            `${pointToString({ x: node.x, y: node.y })}, ${node.distance}`
-        ),
-        shortestPath: [],
-      };
+    if (closestNode.distance === Infinity) {
+      return;
+    }
 
     // Since we have visited the node, set its visited attribute to true and push it to the
     // visitedNodesInOrder array
@@ -80,15 +93,7 @@ export const greedyBFS = (
 
     // If the closest node is the end node, then our job is done and we have found the end node.
     if (closestNode === endNode) {
-      return {
-        visitedNodesInOrder: visitedNodesInOrder.map(
-          (node) =>
-            `${pointToString({ x: node.x, y: node.y })}, ${node.distance}`
-        ),
-        shortestPath: getNodesInShortestPath(endNode).map((node) =>
-          pointToString({ x: node.x, y: node.y })
-        ),
-      };
+      return;
     }
 
     // This updates the distance of the top, bottom, left, and right nodes of the closestNode
@@ -96,7 +101,14 @@ export const greedyBFS = (
     // then its neighbors will have a distance of 0+1 = 1.
     // If the closest node has a distance of for example 5 from the starting node, then its
     // neighbors will have a distance of 5+1 = 6.
-    updateUnvisitedNeighbors(closestNode, grid, height, width);
+    updateUnvisitedNeighbors(
+      closestNode,
+      grid,
+      height,
+      width,
+      endNode,
+      allowDiagonalMoves
+    );
   }
 };
 
@@ -123,24 +135,6 @@ const createGrid = (nodes, walls, startPos, endPos, shouldSetDistance) => {
 };
 
 /**
- * Getting the top, left, bottom, and right neighbors of a node
- * @param {Object} node
- * @param {Array<Array>} grid
- * @param {Number} height
- * @param {Number} width
- * @returns
- */
-const getNeighbors = (node, grid, height, width) => {
-  const neighbors = [];
-  const { x, y } = node;
-  if (y > 0) neighbors.push(grid[y - 1][x]);
-  if (y < height - 1) neighbors.push(grid[y + 1][x]);
-  if (x > 0) neighbors.push(grid[y][x - 1]);
-  if (x < width - 1) neighbors.push(grid[y][x + 1]);
-  return neighbors;
-};
-
-/**
  * Setting the distance of each of the neighbors to be 1 plus the distance of the given node
  * Also setting the prevNode attribute of each of the neighbors to the given node.
  * The prevNode attribute will help determine the shortest path.
@@ -150,11 +144,20 @@ const getNeighbors = (node, grid, height, width) => {
  * @param {Number} height
  * @param {Number} width
  */
-const updateUnvisitedNeighbors = (node, grid, height, width) => {
-  const neighbors = getNeighbors(node, grid, height, width);
+const updateUnvisitedNeighbors = (
+  node,
+  grid,
+  height,
+  width,
+  endNode,
+  allowDiagonalMoves
+) => {
+  const neighbors = allowDiagonalMoves
+    ? get8WayNeighbors(node, grid, height, width)
+    : get4WayNeighbors(node, grid, height, width);
   neighbors.forEach((neighbor) => {
     if (neighbor.distance === Infinity) {
-      neighbor.distance = node.distance + 1;
+      neighbor.distance = manhattenDistance(neighbor, endNode);
       neighbor.prevNode = node;
     }
   });

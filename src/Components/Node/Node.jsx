@@ -4,13 +4,18 @@ import { pointToString } from "../../algorithms/helperFns";
 
 const Node = ({ nodeInfo, gridInfo, gameState, setters, algorithmInfo }) => {
   const nodeRef = useRef(null);
-
   // Setting the start or node node to the current node depending on the "mode"
   const handleMouseEnter = (e) => {
+    const wallIndex = gridInfo.walls.indexOf(nodeInfo.pos);
+
     if (gameState.mode === "s") {
-      setters.setStartPos(nodeInfo.pos);
+      if (wallIndex === -1) {
+        setters.setStartPos(nodeInfo.pos);
+      }
     } else if (gameState.mode === "e") {
-      setters.setEndPos(nodeInfo.pos);
+      if (wallIndex === -1) {
+        setters.setEndPos(nodeInfo.pos);
+      }
     }
   };
 
@@ -55,39 +60,66 @@ const Node = ({ nodeInfo, gridInfo, gameState, setters, algorithmInfo }) => {
     } else {
       nodeRef.current.classList.remove("end");
     }
-    if (gridInfo.walls.includes(nodeInfo.pos))
-      nodeRef.current.classList.add("wall");
+
+    const wallIndex = gridInfo.walls.indexOf(nodeInfo.pos);
+    if (wallIndex >= 0)
+      gridInfo.shouldAnimateWalls
+        ? setTimeout(() => {
+            nodeRef.current.classList.add("wall");
+            if (wallIndex >= gridInfo.walls.length - 1) {
+              setters.setShouldAnimateWalls(false);
+            }
+          }, 20 * wallIndex)
+        : nodeRef.current.classList.add("wall");
     else {
       nodeRef.current.classList.remove("wall");
     }
-    if (
-      algorithmInfo.visitedNodes
-        .map((nodeString) => nodeString.split(", ").slice(0, 2).join(", "))
-        .includes(nodeInfo.pos)
-    ) {
-      nodeRef.current.classList.add("visited");
+
+    const visitedIndex = algorithmInfo.visitedNodes
+      .map((nodeString) => nodeString.split(", ").slice(0, 2).join(", "))
+      .indexOf(nodeInfo.pos);
+
+    const shortestPathIndex = algorithmInfo.shortestPath.indexOf(nodeInfo.pos);
+
+    if (visitedIndex >= 0) {
+      setTimeout(() => {
+        if (
+          (gridInfo.startPos !== nodeInfo.pos) &
+          (gridInfo.endPos !== nodeInfo.pos)
+        ) {
+          nodeRef.current.classList.add("visited");
+        }
+      }, 10 * visitedIndex);
     } else {
       nodeRef.current.classList.remove("visited");
     }
-    if (algorithmInfo.shortestPath.includes(nodeInfo.pos)) {
-      nodeRef.current.classList.add("shortestPath");
+    if (shortestPathIndex >= 0) {
+      setTimeout(() => {
+        if (
+          (gridInfo.startPos !== nodeInfo.pos) &
+          (gridInfo.endPos !== nodeInfo.pos)
+        ) {
+          nodeRef.current.classList.add("shortestPath");
+        }
+      }, 50 * shortestPathIndex + 10 * algorithmInfo.visitedNodes.length - 1);
     } else {
       nodeRef.current.classList.remove("shortestPath");
     }
   }, [gridInfo, nodeInfo, gameState, algorithmInfo]);
 
   return (
-    <div
-      className="node"
-      ref={nodeRef}
-      style={{
-        width: nodeInfo.nodeWidth,
-        height: nodeInfo.nodeWidth,
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseMove={handleMouse}
-      onClick={handleMouse}
-    ></div>
+    <div className="node">
+      <div
+        ref={nodeRef}
+        style={{
+          width: nodeInfo.nodeWidth,
+          height: nodeInfo.nodeWidth,
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseMove={handleMouse}
+        onClick={handleMouse}
+      ></div>
+    </div>
   );
 };
 

@@ -63,6 +63,8 @@ export const Header = ({
             "Djikstra's",
             "A*",
             "Greedy Best-First Search",
+            "Breadth-First Search",
+            "Depth-First Search",
           ]}
           handleChange={handleAlgorithmChange}
         />

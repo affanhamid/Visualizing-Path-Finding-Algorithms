@@ -1,7 +1,18 @@
+:root {
+    --background: #020202;
+    --primary: #058C42;
+    --secondary: #04471C;
+    --tertiary: #0D2818;
+}
+
 * {
     margin:0;
     padding:0;
     box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background);
 }
 
 .App {

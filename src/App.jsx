@@ -29,6 +29,7 @@ function App() {
   // Nodes and walls
   const [nodes, setNodes] = useState([]);
   const [walls, setWalls] = useState([]);
+  const [shouldAnimateWalls, setShouldAnimateWalls] = useState(false);
 
   const [algorithm, setAlgorithm] = useState("");
   const [allowDiagonalMoves, setAllowDiagonalMoves] = useState("");
@@ -56,11 +57,11 @@ function App() {
       temp_list.push(row);
     }
     setNodes(temp_list);
-  }, [endPos, startPos]);
+  }, []);
 
   // Getting the output from the path finding algorithm
   const visualizeAlgorithm = () => {
-    const { visitedNodesInOrder, shortestPath } = findPath(
+    findPath(
       nodes,
       walls,
       startPos,
@@ -68,20 +69,21 @@ function App() {
       height,
       width,
       allowDiagonalMoves,
+      setVisitedNodes,
+      setShortestPath,
       algorithm
     );
-    setVisitedNodes(visitedNodesInOrder);
-    setShortestPath(shortestPath);
   };
 
   // Reseting the grid by setting all the values back to default
 
   const resetGrid = () => {
-    setVisitedNodes([]);
-    setShortestPath([]);
-    setStartPos(pointToString(getRandomPoint(width, height)));
-    setEndPos(pointToString(getRandomPoint(width, height)));
-    setWalls([]);
+    setShouldAnimateWalls(false);
+    setVisitedNodes(() => []);
+    setShortestPath(() => []);
+    setStartPos(() => pointToString(getRandomPoint(width, height)));
+    setEndPos(() => pointToString(getRandomPoint(width, height)));
+    setWalls(() => []);
   };
 
   /**
@@ -129,6 +131,7 @@ function App() {
           const maze = createMaze(mazeType, width, height);
           setStartPos(chooseSafePoint(maze, width, height));
           setEndPos(chooseSafePoint(maze, width, height));
+          setShouldAnimateWalls(true);
           setWalls(maze);
         }}
       />
@@ -138,6 +141,7 @@ function App() {
         gridInfo={{
           nodes: nodes,
           walls: walls,
+          shouldAnimateWalls: shouldAnimateWalls,
           startPos: startPos,
           endPos: endPos,
         }}
@@ -145,6 +149,7 @@ function App() {
           setStartPos: setStartPos,
           setEndPos: setEndPos,
           setWalls: setWalls,
+          setShouldAnimateWalls: setShortestPath,
         }}
         algorithmInfo={{
           visitedNodes: visitedNodes,
