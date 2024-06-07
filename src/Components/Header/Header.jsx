@@ -89,6 +89,7 @@ export const Header = ({
           <button
             onClick={() => {
               diagonalMovesRef.current.checked = false;
+              setAllowDiagonalMoves(false);
               algRef.current.selectedIndex = 0;
               mazeRef.current.selectedIndex = 0;
               setAlgorithm("");
