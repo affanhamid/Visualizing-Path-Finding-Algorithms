@@ -6,6 +6,7 @@ import {
 } from "./algorithms/helperFns";
 import { Grid, Header } from "./Components";
 import { createMaze } from "./algorithms/Maze Algorithms/mazeGenerator";
+import Modal from "./Components/Modal/Modal";
 import findPath from "./algorithms/Path Finding Algorithms/findPath";
 import "./App.css";
 
@@ -37,12 +38,17 @@ function App() {
   // Results from the path finding algorithm
   const [visitedNodes, setVisitedNodes] = useState([]);
   const [shortestPath, setShortestPath] = useState([]);
+  const wallTimeoutIds = useRef([]);
+  const nodesTimeoutIds = useRef([]);
+  const [animateNodes, setAnimateNodes] = useState(1);
+
+  const [openModal, setOpenModal] = useState(false);
 
   // Ref for the app div
   const appRef = useRef(null);
 
   // Creating the node data and saving to the nodes variable
-  useEffect(() => {
+  const createNodeList = () => {
     const temp_list = [];
     for (let y = 0; y < height; y++) {
       let row = [];
@@ -57,23 +63,48 @@ function App() {
       temp_list.push(row);
     }
     setNodes(temp_list);
+  };
+
+  useEffect(() => {
+    createNodeList();
+    setOpenModal(true);
   }, []);
 
   // Getting the output from the path finding algorithm
   const visualizeAlgorithm = () => {
-    findPath(
-      nodes,
-      walls,
-      startPos,
-      endPos,
-      height,
-      width,
-      allowDiagonalMoves,
-      setVisitedNodes,
-      setShortestPath,
-      algorithm
-    );
+    nodesTimeoutIds.current.forEach((id) => clearTimeout(id));
+    setVisitedNodes(() => []);
+    setShortestPath(() => []);
+    setTimeout(() => {
+      findPath(
+        nodes,
+        walls,
+        startPos,
+        endPos,
+        height,
+        width,
+        allowDiagonalMoves,
+        setVisitedNodes,
+        setShortestPath,
+        algorithm
+      );
+    }, 100);
   };
+
+  useEffect(() => {
+    if (
+      (visitedNodes.length !== 0) &
+      ["Djikstra's", "A*"].includes(algorithm)
+    ) {
+      nodesTimeoutIds.current.forEach((id) => clearTimeout(id));
+      setVisitedNodes(() => []);
+      setShortestPath(() => []);
+      setAnimateNodes(0);
+      setTimeout(() => {
+        visualizeAlgorithm();
+      }, 0);
+    }
+  }, [startPos, endPos]);
 
   // Reseting the grid by setting all the values back to default
 
@@ -84,6 +115,9 @@ function App() {
     setStartPos(() => pointToString(getRandomPoint(width, height)));
     setEndPos(() => pointToString(getRandomPoint(width, height)));
     setWalls(() => []);
+
+    wallTimeoutIds.current.forEach((id) => clearTimeout(id));
+    nodesTimeoutIds.current.forEach((id) => clearTimeout(id));
   };
 
   /**
@@ -120,6 +154,7 @@ function App() {
       tabIndex={0}
       ref={appRef}
     >
+      {openModal ? <Modal setOpenModal={setOpenModal} /> : ""}
       <Header
         mode={mode}
         visualizeAlgorithm={visualizeAlgorithm}
@@ -128,12 +163,14 @@ function App() {
         setAlgorithm={setAlgorithm}
         setAllowDiagonalMoves={setAllowDiagonalMoves}
         createMaze={(mazeType) => {
+          resetGrid();
           const maze = createMaze(mazeType, width, height);
           setStartPos(chooseSafePoint(maze, width, height));
           setEndPos(chooseSafePoint(maze, width, height));
           setShouldAnimateWalls(true);
           setWalls(maze);
         }}
+        setAnimateNodes={setAnimateNodes}
       />
       <Grid
         gameState={{ mode: mode, mouseState: mouseState }}
@@ -155,6 +192,9 @@ function App() {
           visitedNodes: visitedNodes,
           shortestPath: shortestPath,
         }}
+        wallTimeoutIds={wallTimeoutIds}
+        nodesTimeoutIds={nodesTimeoutIds}
+        animateNodes={animateNodes}
       />
     </div>
   );

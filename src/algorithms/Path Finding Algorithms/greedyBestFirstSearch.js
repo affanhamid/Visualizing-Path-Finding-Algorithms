@@ -91,6 +91,8 @@ export const greedyBFS = (
     closestNode.visited = true;
     visitedNodesInOrder.push(closestNode);
 
+    console.log(visitedNodesInOrder);
+
     // If the closest node is the end node, then our job is done and we have found the end node.
     if (closestNode === endNode) {
       return;

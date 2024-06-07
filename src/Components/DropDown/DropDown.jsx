@@ -1,13 +1,17 @@
 import React from "react";
 import "./DropDown.css";
 
-const DropDown = ({ name, options, handleChange }) => {
+const DropDown = ({ options, handleChange, dropDownRef }) => {
   return (
     <div className="dropDown">
-      <label htmlFor="dropDown">{name}</label>
-      <select name="dropDown" onChange={handleChange}>
+      <select name="dropDown" onChange={handleChange} ref={dropDownRef}>
         {options.map((option, idx) => (
-          <option value={option} key={idx}>
+          <option
+            value={option}
+            key={idx}
+            disabled={idx === 0}
+            selected={idx === 0}
+          >
             {option}
           </option>
         ))}

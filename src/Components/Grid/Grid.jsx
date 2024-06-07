@@ -9,6 +9,9 @@ export const Grid = ({
   gridInfo,
   setters,
   algorithmInfo,
+  wallTimeoutIds,
+  nodesTimeoutIds,
+  animateNodes,
 }) => {
   return (
     <div className="visualizer__gridContainer">
@@ -29,6 +32,9 @@ export const Grid = ({
             gameState={gameState}
             setters={setters}
             algorithmInfo={algorithmInfo}
+            wallTimeoutIds={wallTimeoutIds}
+            nodesTimeoutIds={nodesTimeoutIds}
+            animateNodes={animateNodes}
           />
         ))}
       </div>

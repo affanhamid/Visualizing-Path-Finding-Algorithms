@@ -1,7 +1,5 @@
 .node {
     background-color: var(--secondary);
-    overflow: hidden;
-    font-size: 11px;
 }
 
 .node div {
@@ -9,6 +7,17 @@
 }
 
 .visited {
+    animation-name: visitedAnimation;
+    animation-duration: 0s;
+    animation-timing-function: ease-out;
+    animation-delay: 0;
+    animation-direction: alternate;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
+}
+
+.animated_visited {
     animation-name: visitedAnimation;
     animation-duration: 0.5s;
     animation-timing-function: ease-out;
@@ -20,18 +29,59 @@
 }
 
 .start {
-    background-color: green;
+    background-color: var(--start-color);
 }
 
 .end {
-    background-color: red;
+    position: relative;
+    background-color: var(--end-color);
+}
+
+.end::before {
+    content: "";
+    width:100%;
+    height:100%;
+    background:transparent;
+    border: 1px solid var(--end-color);
+    border-radius:5px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    z-index:3;
+    animation: endNode 1s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes endNode {
+    0% {
+        width:100%;
+        height:100%;
+        opacity:100%;
+    }
+    100% {
+        width:150%;
+        height:150%;
+        opacity:0%;
+    }
 }
 
 .wall {
-    background:black;
+    background:var(--wall-color);
 }
 
 .shortestPath {
+    animation-name: shortestPath;
+    animation-duration: 0s;
+    animation-timing-function: ease-out;
+    animation-delay: 0;
+    animation-direction: alternate;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
+}
+
+.animated_shortestPath {
     animation-name: shortestPath;
     animation-duration: 1.5s;
     animation-timing-function: ease-out;
@@ -49,33 +99,33 @@
     }
 
     50% {
-        background-color: rgba(17, 104, 217, 0.75);
+        background-color: var(--visited-node-1);
     }
 
     75% {
         transform: scale(1.1);
-        background-color: rgba(0, 217, 159, 0.75);
+        background-color: var(--visited-node-2);
     }
 
     100% {
         transform: scale(1);
-        background-color: rgba(0, 190, 218, 0.75);
+        background-color: var(--visited-node-3);
     }
 }
 
 @keyframes shortestPath {
     0% {
         transform: scale(0.6);
-        background-color: rgb(255, 254, 106);
+        background-color: var(--shortest-path);
     }
 
     50% {
         transform: scale(1.1);
-        background-color: rgb(255, 254, 106);
+        background-color: var(--shortest-path);
     }
 
     100% {
         transform: scale(1);
-        background-color: rgb(255, 254, 106);
+        background-color: var(--shortest-path);
     }
 }

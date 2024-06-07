@@ -1,8 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
 :root {
-    --background: #020202;
+    --background: #030637;
     --primary: #058C42;
-    --secondary: #04471C;
+    --secondary: rgba(255, 255, 255, 0.1);
     --tertiary: #0D2818;
+    --header-color: #030637;
+    --end-color: #ff00ae;
+    --start-color: #0a2e91;
+    --visited-node-1: #ff00bb58;
+    --visited-node-2: #970f5cb2;
+    --visited-node-3: #720455;
+    --shortest-path: rgb(83, 178, 255);
+    --wall-color:rgb(0, 0, 0);
 }
 
 * {
@@ -13,6 +22,11 @@
 
 body {
     background-color: var(--background);
+    z-index:1;
+    font-family: "Josefin Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: <weight>;
+    font-style: normal;
 }
 
 .App {
@@ -20,4 +34,10 @@ body {
     flex-direction: column;
     align-items: center;
     height:100vh;
+}
+
+button:hover {
+    background:white;
+    color:black;
+    outline:none;
 }

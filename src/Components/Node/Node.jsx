@@ -2,7 +2,16 @@ import React, { useEffect, useRef } from "react";
 import "./Node.css";
 import { pointToString } from "../../algorithms/helperFns";
 
-const Node = ({ nodeInfo, gridInfo, gameState, setters, algorithmInfo }) => {
+const Node = ({
+  nodeInfo,
+  gridInfo,
+  gameState,
+  setters,
+  algorithmInfo,
+  wallTimeoutIds,
+  nodesTimeoutIds,
+  animateNodes,
+}) => {
   const nodeRef = useRef(null);
   // Setting the start or node node to the current node depending on the "mode"
   const handleMouseEnter = (e) => {
@@ -63,14 +72,17 @@ const Node = ({ nodeInfo, gridInfo, gameState, setters, algorithmInfo }) => {
 
     const wallIndex = gridInfo.walls.indexOf(nodeInfo.pos);
     if (wallIndex >= 0)
-      gridInfo.shouldAnimateWalls
-        ? setTimeout(() => {
-            nodeRef.current.classList.add("wall");
-            if (wallIndex >= gridInfo.walls.length - 1) {
-              setters.setShouldAnimateWalls(false);
-            }
-          }, 20 * wallIndex)
-        : nodeRef.current.classList.add("wall");
+      if (gridInfo.shouldAnimateWalls) {
+        const animateWallsTimeout = setTimeout(() => {
+          nodeRef.current.classList.add("wall");
+          if (wallIndex >= gridInfo.walls.length - 1) {
+            setters.setShouldAnimateWalls(false);
+          }
+        }, 20 * wallIndex);
+        wallTimeoutIds.current.push(animateWallsTimeout);
+      } else {
+        nodeRef.current.classList.add("wall");
+      }
     else {
       nodeRef.current.classList.remove("wall");
     }
@@ -82,27 +94,41 @@ const Node = ({ nodeInfo, gridInfo, gameState, setters, algorithmInfo }) => {
     const shortestPathIndex = algorithmInfo.shortestPath.indexOf(nodeInfo.pos);
 
     if (visitedIndex >= 0) {
-      setTimeout(() => {
+      const visitedNodesTimeout = setTimeout(() => {
         if (
           (gridInfo.startPos !== nodeInfo.pos) &
           (gridInfo.endPos !== nodeInfo.pos)
         ) {
-          nodeRef.current.classList.add("visited");
+          nodeRef.current.classList.add(
+            animateNodes ? "animated_visited" : "visited"
+          );
+          nodeRef.current.classList.remove(
+            !animateNodes ? "animated_visited" : "visited"
+          );
         }
-      }, 10 * visitedIndex);
+      }, 10 * visitedIndex * animateNodes);
+      nodesTimeoutIds.current.push(visitedNodesTimeout);
     } else {
+      nodeRef.current.classList.remove("animated_visited");
       nodeRef.current.classList.remove("visited");
     }
     if (shortestPathIndex >= 0) {
-      setTimeout(() => {
+      const shortestPathTimeout = window.setTimeout(() => {
         if (
           (gridInfo.startPos !== nodeInfo.pos) &
           (gridInfo.endPos !== nodeInfo.pos)
         ) {
-          nodeRef.current.classList.add("shortestPath");
+          nodeRef.current.classList.add(
+            animateNodes ? "animated_shortestPath" : "shortestPath"
+          );
+          nodeRef.current.classList.remove(
+            !animateNodes ? "animated_shortestPath" : "shortestPath"
+          );
         }
-      }, 50 * shortestPathIndex + 10 * algorithmInfo.visitedNodes.length - 1);
+      }, (50 * shortestPathIndex + 10 * algorithmInfo.visitedNodes.length - 1) * animateNodes);
+      nodesTimeoutIds.current.push(shortestPathTimeout);
     } else {
+      nodeRef.current.classList.remove("animated_shortestPath");
       nodeRef.current.classList.remove("shortestPath");
     }
   }, [gridInfo, nodeInfo, gameState, algorithmInfo]);
